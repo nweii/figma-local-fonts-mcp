@@ -45,6 +45,34 @@ export const editSchema = z.object({
   }),
 }).strict();
 
+export const createSchema = z.object({
+  connectionId: z.string().min(1).describe('Exact connectionId from status for the intended file.'),
+  parentId: z.string().min(1).describe('Visible, unlocked page, frame, group, component, or section on the current page. Instances are not supported.'),
+  name: z.string().trim().min(1).max(200),
+  characters: z.string().min(1).max(20000).describe('Text to create with one font and style.'),
+  fontName: z.object({ family: z.string().trim().min(1).max(100), style: z.string().trim().min(1).max(100) }).strict().describe('Exact installed font from local font search or inspection. Loaded before creating any layer.'),
+  fontSize: z.number().positive().max(1000),
+  x: z.number().finite().min(-100000).max(100000).describe('Position relative to the parent; auto layout controls position in AUTO mode.'),
+  y: z.number().finite().min(-100000).max(100000),
+  textAutoResize: z.enum(['WIDTH_AND_HEIGHT', 'HEIGHT', 'NONE']).default('WIDTH_AND_HEIGHT'),
+  width: z.number().min(0.01).max(100000).optional(),
+  height: z.number().min(0.01).max(100000).optional(),
+  layoutPositioning: z.enum(['AUTO', 'ABSOLUTE']).default('AUTO').describe('Use ABSOLUTE inside an auto-layout frame to honor x and y.'),
+  color: z.object({ r: z.number().min(0).max(1), g: z.number().min(0).max(1), b: z.number().min(0).max(1) }).strict().optional().describe('Solid text color; defaults to black.'),
+  opacity: z.number().min(0).max(1).optional(),
+  letterSpacing: z.object({ unit: z.enum(['PIXELS', 'PERCENT']), value: z.number().min(-1000).max(10000) }).strict().optional(),
+  lineHeight: z.union([z.object({ unit: z.literal('AUTO') }).strict(), z.object({ unit: z.enum(['PIXELS', 'PERCENT']), value: z.number().positive().max(10000) }).strict()]).optional(),
+  paragraphSpacing: z.number().nonnegative().max(10000).optional(),
+  textAlignHorizontal: z.enum(['LEFT', 'CENTER', 'RIGHT', 'JUSTIFIED']).optional(),
+}).strict().superRefine((value, context) => {
+  const error = (message: string) => context.addIssue({ code: z.ZodIssueCode.custom, message });
+  if (value.textAutoResize === 'WIDTH_AND_HEIGHT' && (value.width !== undefined || value.height !== undefined)) error('WIDTH_AND_HEIGHT computes both dimensions; omit width and height.');
+  if (value.textAutoResize === 'HEIGHT' && (value.width === undefined || value.height !== undefined)) error('HEIGHT requires width and computes height; omit height.');
+  if (value.textAutoResize === 'NONE' && (value.width === undefined || value.height === undefined)) error('NONE requires both width and height.');
+});
+
+export type Create = z.infer<typeof createSchema>;
+
 export type Edit = z.infer<typeof editTargetSchema>;
 export type EditBatch = z.infer<typeof editSchema>;
 export type Inspect = z.infer<typeof inspectSchema>;

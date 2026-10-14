@@ -1,6 +1,6 @@
 # Test the published package
 
-The npm package contains a prebuilt MCP server. It requires Node.js 24 or later and a local MCP client. It does not include the Figma companion’s credential-bearing UI. Build and import the companion using the [source installation](../README.md#installation) before using package tools with a file.
+The npm package contains a prebuilt MCP server. It requires Node.js 24 or later and a local MCP client. It does not include the Figma companion’s credential-bearing UI. Build and import the companion using the [source setup](source-setup.md) before using package tools with a file.
 
 Check the [release notes](../CHANGELOG.md) before mixing a published server with the source companion. All active server clients should use the same build. Use the source installation when you need behavior that has not been published.
 

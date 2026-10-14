@@ -1,6 +1,6 @@
 # Text operations and limits
 
-Agent Font Access edits existing text layers. Use Figma’s official MCP for creating layers, surrounding layout, and screenshots. Its node IDs can be passed to the local inspection tool.
+Agent Font Access creates and edits text layers. Use Figma’s official MCP for surrounding layout, non-text layers, and screenshots. Its node IDs can be passed to the local inspection tool.
 
 ## Inspect text
 
@@ -14,7 +14,15 @@ Each batch targets 1–30 unique text layers. Each text layer is limited to 20,0
 
 Font discovery returns exact family and style names available in Figma Desktop. Setting `fontName` deliberately changes the font family and style across the entire target layer. Other text styles remain intact unless the request changes them.
 
-For new text, create the layer through the official MCP with an available font, then use the local tool to apply the intended installed font, copy, and dimensions. Verify the intended font before considering the design complete.
+## Create text
+
+Use `figma_local_fonts_create` with the intended `connectionId`, `parentId`, `name`, `characters`, exact `fontName`, `fontSize`, and parent-relative `x` and `y`. Search local fonts or inspect neighboring text to identify its typeface. Optional properties include a solid RGB color (values from 0 to 1), opacity, line height, letter spacing, paragraph spacing, alignment, and wrapping dimensions.
+
+The parent must be a visible, unlocked page, frame, group, component, or section on the current page. Creation inside component instances is not supported. In auto layout, `AUTO` lets the parent position the text; use `layoutPositioning: "ABSOLUTE"` to honor `x` and `y`.
+
+The tool loads the requested font before creating a layer, configures the layer while hidden, and reveals it after applying all properties. The text is created with one uniform font and style. A failed font load creates no layer; a construction failure removes its incomplete layer. The result includes the created node’s state and revision for subsequent edits.
+
+Creation is not idempotent. If a call times out or its response is lost, inspect the parent before retrying so you do not create a duplicate.
 
 ## Set wrapping dimensions
 

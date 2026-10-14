@@ -85,7 +85,7 @@ test('a socket that opens but fails authentication has a distinct visible error'
   ui.window.onmessage({ data: { pluginMessage: { type: 'identity', connectionId: 'file-1', fileName: 'Example' } } });
   ui.sockets[0].open();
   ui.sockets.forEach(socket => socket.close());
-  assert.match(ui.elements.activity.textContent, /closed before authentication/);
+  assert.match(ui.elements.activity.textContent, /could not pair/);
   assert.equal(ui.elements.status.textContent, 'Connection needs attention');
 });
 
@@ -98,7 +98,7 @@ test('collapsing keeps the authenticated socket and resizes after the short tran
   assert.equal(ui.elements.details.inert, true);
   assert.equal(ui.elements.details.attributes['aria-hidden'], 'true');
   assert.equal(ui.elements.status.textContent, 'Connected');
-  assert.equal(ui.elements.sessions.textContent, '1 desktop bridge');
+  assert.equal(ui.elements.sessions.textContent, 'Example');
   assert.equal(ui.sockets.length, 10);
   assert.equal(ui.sockets[0].authenticated, true);
   assert.equal(ui.parentMessages.some(message => message.type === 'resize'), false);

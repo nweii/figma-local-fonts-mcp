@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Create text directly with an installed font, loading that font before the layer appears.
+- Connection status gives agents setup actions and the companion manifest path when available.
+
 - Agent clients share one authenticated desktop broker instead of reserving a desktop port per chat.
 - Closing one client leaves other clients connected. The broker stops 30 seconds after its last agent disconnects.
 - The companion identifies its shared desktop connection separately from individual agent sessions.

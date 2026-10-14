@@ -1,5 +1,5 @@
-// Inspects Figma text and applies validated batches after loading their original and requested fonts.
-import { validateReplacement, type Edit } from './schema.ts';
+// Inspects Figma text and creates local-font text and applies validated batches after loading required fonts.
+import { validateReplacement, type Edit, type Create } from './schema.ts';
 
 export const segmentFields = ['fontName', 'fontSize', 'lineHeight', 'letterSpacing', 'fills', 'textStyleId', 'textCase', 'textDecoration', 'hyperlink', 'boundVariables'] as const;
 
@@ -144,4 +144,61 @@ export async function applyEdits(api: Pick<PluginAPI, 'loadFontAsync' | 'mixed' 
   }
   api.commitUndo();
   return { success: true, applied, unattemptedNodeIds: [] };
+}
+
+export type CreateParent = PageNode | FrameNode | GroupNode | ComponentNode | SectionNode;
+
+function checkCreateParent(parent: CreateParent, page: PageNode, args: Create) {
+  if (parent.id !== args.parentId.replace(/^(\d+)-(\d+)$/, '$1:$2')) throw new Error('The target parent changed. Inspect the destination again.');
+  if (args.layoutPositioning === 'ABSOLUTE' && (!('layoutMode' in parent) || parent.layoutMode === 'NONE')) throw new Error('ABSOLUTE positioning requires an auto-layout parent.');
+  if (parent.removed || !['PAGE', 'FRAME', 'GROUP', 'COMPONENT', 'SECTION'].includes(parent.type))
+    throw new Error('Creation requires an existing page, frame, group, component, or section.');
+  let containingPage: BaseNode | null = parent;
+  for (let ancestor: BaseNode | null = parent; ancestor; ancestor = ancestor.parent) {
+    if (ancestor.type === 'PAGE') containingPage = ancestor;
+    if (ancestor.type === 'INSTANCE') throw new Error('Creating text inside component instances is not supported.');
+    if ('locked' in ancestor && ancestor.locked) throw new Error('The parent or an ancestor is locked. Unlock it before creating text.');
+  }
+  if (containingPage !== page) throw new Error('The target parent is not on the current Figma page. Open that page before creating text.');
+  if (!visibilityState(parent).effectiveVisible) throw new Error('The parent is hidden. Make it visible before creating text.');
+}
+
+export async function createText(api: Pick<PluginAPI, 'loadFontAsync' | 'createText' | 'commitUndo' | 'currentPage'>, parent: CreateParent, args: Create, deadline = Infinity): Promise<TextNode> {
+  checkCreateParent(parent, api.currentPage, args);
+  try { await api.loadFontAsync(args.fontName); }
+  catch { throw new Error(`Figma Desktop could not load ${args.fontName.family} / ${args.fontName.style}. No layer was created.`); }
+  // Font loading yields to the editor; revalidate the destination before adding any layer.
+  checkCreateParent(parent, api.currentPage, args);
+  if (Date.now() >= deadline) throw new Error('Request expired while loading the font. No layer was created.');
+  let node: TextNode | undefined;
+  api.commitUndo();
+  try {
+    node = api.createText();
+    node.visible = false;
+    node.fontName = args.fontName;
+    node.fontSize = args.fontSize;
+    node.name = args.name;
+    node.characters = args.characters;
+    node.fills = [{ type: 'SOLID', color: args.color ?? { r: 0, g: 0, b: 0 }, opacity: args.opacity ?? 1 }];
+    if (args.letterSpacing !== undefined) node.letterSpacing = args.letterSpacing;
+    if (args.lineHeight !== undefined) node.lineHeight = args.lineHeight;
+    if (args.paragraphSpacing !== undefined) node.paragraphSpacing = args.paragraphSpacing;
+    if (args.textAlignHorizontal !== undefined) node.textAlignHorizontal = args.textAlignHorizontal;
+    if (args.width !== undefined) {
+      node.textAutoResize = 'NONE';
+      node.resize(args.width, args.height ?? node.height);
+    }
+    node.textAutoResize = args.textAutoResize;
+    parent.appendChild(node);
+    if ('layoutMode' in parent && parent.layoutMode !== 'NONE') node.layoutPositioning = args.layoutPositioning;
+    node.x = args.x; node.y = args.y;
+    // No awaits occur between creation and reveal, so placeholder typography is never displayed.
+    node.visible = true;
+    api.commitUndo();
+    return node;
+  } catch (error) {
+    node?.remove();
+    api.commitUndo();
+    throw new Error(`Text creation failed; its layer was removed. ${String(error)}`);
+  }
 }

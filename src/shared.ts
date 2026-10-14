@@ -29,7 +29,7 @@ export class SharedBridge {
     });
   }
   status() { return this.call('status', {}); }
-  request(method: 'inspect' | 'fonts' | 'edit', args: { connectionId?: string }) { return this.call(method, args); }
+  request(method: 'inspect' | 'fonts' | 'edit' | 'create', args: { connectionId?: string }) { return this.call(method, args); }
   private call(method: string, args: unknown): Promise<unknown> {
     if (this.socket.readyState !== WebSocket.OPEN) return Promise.reject(new Error('Desktop bridge disconnected. Restart this MCP client and inspect before editing.'));
     const id = randomUUID();

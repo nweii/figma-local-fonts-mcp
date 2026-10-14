@@ -48,11 +48,11 @@ const details = document.getElementById('details');
 function render() {
   const count = [...sockets.values()].filter(s => s.authenticated).length;
   status.textContent = lastError ? 'Needs attention' : count ? 'Connected' : !identity ? 'Connecting to Figma…' : sockets.size || retryTimers.size ? 'Finding agent sessions…' : authenticationFailed ? 'Connection needs attention' : 'No agent connected';
-  sessions.textContent = count ? `${count} desktop bridge${count === 1 ? '' : 's'}` : '';
+  sessions.textContent = identity ? identity.fileName : '';
   dot.dataset.state = lastError || (authenticationFailed && !count) ? 'attention' : count ? 'connected' : 'idle';
   toggle.title = lastError && collapsed ? 'Expand to read error' : collapsed ? 'Expand details' : 'Collapse details';
   toggle.setAttribute('aria-label', toggle.title);
-  if (identity && !count && !sockets.size && !retryTimers.size && !lastError) activity.textContent = authenticationFailed ? 'An agent session closed before authentication. Check that the plugin and MCP server use the same build.' : 'Start an agent session, then click Find agent sessions.';
+  if (identity && !count && !sockets.size && !retryTimers.size && !lastError) activity.textContent = authenticationFailed ? 'The companion could not pair with the server. Ask your agent to rebuild the companion with the same installation, then reopen it.' : 'Ask your agent to check that Agent Font Access is installed and running in its MCP client, then click Find agent sessions.';
 }
 function setCollapsed(next, immediate = false) {
   if (collapsed === next) return;

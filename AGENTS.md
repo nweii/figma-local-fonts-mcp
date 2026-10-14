@@ -4,7 +4,7 @@ Read [README.md](README.md) for setup and user-visible behavior. For operating t
 
 ## Implementation boundaries
 
-Keep MCP input validation in `src/schema.ts`, canvas mutation in `src/text.ts`, and socket routing in `src/bridge.ts`. The companion UI relays requests to the Figma sandbox; the edit surface stays limited to existing text.
+Keep MCP input validation in `src/schema.ts`, canvas mutation in `src/text.ts`, and socket routing in `src/bridge.ts`. The companion UI relays requests to the Figma sandbox; the canvas surface stays limited to text creation and edits. Creation loads its intended font before adding or revealing a layer.
 
 Preserve font loading, revision checks, request expiry, and explicit file targeting when changing edits. Preserve loopback binding and installation authentication when changing transport. Discovery and reconnect attempts must terminate so an absent agent remains a quiet idle state.
 

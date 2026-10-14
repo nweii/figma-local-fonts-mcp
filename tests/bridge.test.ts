@@ -29,11 +29,11 @@ test('auth rejects unknown clients; two files require explicit routing', async (
     await assert.rejects(bridge.request('edit', { connectionId: 'b' }, 20), /timed out/);
   } finally { await bridge.close(); }
 });
-test('twelve SDK clients discover four tools and share one desktop broker', async () => {
+test('twelve SDK clients discover five tools and share one desktop broker', async () => {
   const clients = Array.from({ length: 12 }, () => new Client({ name: 'integration-test', version: '1' }));
   try {
     await Promise.all(clients.map(client => client.connect(new StdioClientTransport({ command: process.execPath, args: ['dist/server.js'], stderr: 'pipe' }))));
-    const listed = await clients[0].listTools(); assert.equal(listed.tools.length, 4);
+    const listed = await clients[0].listTools(); assert.equal(listed.tools.length, 5);
     const statuses = await Promise.all(clients.map(client => client.callTool({ name: 'figma_local_fonts_status', arguments: {} })));
     assert.ok(statuses.every(status => !status.isError && (status.structuredContent as { port?: number } | undefined)?.port === 38460));
     await clients[0].close();

@@ -2,7 +2,7 @@
 
 ## “No agent connected”
 
-This is a normal idle state. Start an agent session with the local MCP server enabled, then click **Find agent sessions** in the Figma companion. Confirm that `figma_local_fonts_status` lists the intended file.
+Ask the agent to check its Agent Font Access registration and launch errors. Start an agent session with the local MCP server enabled, then click **Find agent sessions** in the Figma companion. Confirm that `figma_local_fonts_status` lists the intended file.
 
 The companion makes one discovery scan across the allowed local ports. Unused ports can produce connection-refused messages during that scan. It does not keep scanning while idle. A previously connected session receives two reconnect attempts before the companion returns to waiting. A manual search starts another discovery scan.
 
@@ -10,7 +10,7 @@ The companion makes one discovery scan across the allowed local ports. Unused po
 
 The companion UI has not received its startup message from the Figma plugin. Close and reopen **Agent Font Access**. After changing source files, build again using the [development steps](../README.md#development), then reopen it.
 
-## “An agent session closed before authentication”
+## “The companion could not pair with the server”
 
 The server and companion may have different installation credentials. Build the project whose development manifest you imported, then restart the MCP server and reopen its companion. The credential is stored in `~/Library/Application Support/Agent Font Access/installation.json` on macOS; keep that file and generated `plugin/ui.html` private. Checking this does not require pasting their contents into an agent conversation.
 
@@ -57,3 +57,11 @@ The shared broker uses port 38460. Stop the older Agent Font Access process hold
 ## Restart after a source build
 
 Close the Figma companion and every agent session using this server. The shared broker stops 30 seconds after the last client disconnects. Start the rebuilt MCP client, reopen the companion, and verify status and inspection before editing. Keeping an old client open keeps its broker running with the code it loaded at startup.
+
+## The server is running but no file is connected
+
+Call `figma_local_fonts_status`. Its `companion.nextAction` identifies the recovery step: obtain source, build the companion, or open it in Figma Desktop. When the source is available, status includes the full manifest path. A disconnected companion may already be installed but closed; check the development menu before importing it again. Agents can prepare the source and build, and use native app tools to import or open the companion when available.
+
+## A creation response was lost
+
+Inspect the intended parent before retrying `figma_local_fonts_create`. A timed-out request may have created its layer. Reuse the returned node if it exists; repeat creation only after confirming it did not occur.

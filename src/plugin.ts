@@ -1,6 +1,6 @@
 // Runs inside Figma Desktop and handles authenticated bridge requests forwarded by its UI.
-import { inspectSchema, fontSearchSchema, editSchema } from './schema.ts';
-import { applyEdits, collectTextNodes, searchFonts, snapshot, type Target } from './text.ts';
+import { inspectSchema, fontSearchSchema, editSchema, createSchema } from './schema.ts';
+import { applyEdits, collectTextNodes, searchFonts, snapshot, createText, type CreateParent, type Target } from './text.ts';
 
 figma.showUI(__html__, { width: 280, height: 184, themeColors: true, title: 'Agent Font Access' });
 const connectionId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
@@ -35,6 +35,14 @@ async function handle(method: string, input: unknown, deadline: number) {
       hint: nodes.length ? undefined : hiddenContainers
         ? 'Hidden containers were skipped. Select an individual text layer to inspect it, or make its container visible in Figma.'
         : 'Select a text layer or frame in Figma, or provide text node IDs from the official MCP.' };
+  }
+  if (method === 'create') {
+    const args = createSchema.parse(input);
+    if (args.connectionId !== connectionId) throw new Error('The target file connection changed. Check status again.');
+    const parent = await figma.getNodeByIdAsync(args.parentId.replace(/^(\d+)-(\d+)$/, '$1:$2'));
+    if (!parent || !['PAGE', 'FRAME', 'GROUP', 'COMPONENT', 'SECTION'].includes(parent.type)) throw new Error('The target parent does not support text creation.');
+    const node = await createText(figma, parent as CreateParent, args, deadline);
+    return { success: true, connectionId, fileName: figma.root.name, pageName: figma.currentPage.name, created: describe(node) };
   }
   if (method === 'edit') {
     const args = editSchema.parse(input);

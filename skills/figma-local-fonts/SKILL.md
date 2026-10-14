@@ -5,19 +5,19 @@ description: Use when editing Figma text with locally installed fonts, when the 
 
 # Agent Font Access
 
-Use the local tools for copy, font selection, typography, and text-box reflow that need fonts installed on the user's Mac. Use the official Figma MCP for design context, creation, frame layout, and screenshots. Route these operations without asking the user to choose a tool.
+Use the local tools for text creation, copy, font selection, typography, and text-box reflow that need fonts installed on the user's Mac. Use the official Figma MCP for design context, creation, frame layout, and screenshots. Route these operations without asking the user to choose a tool.
 
 Inspect the relevant text together, discover exact font names when choosing a typeface, then batch related changes. The MCP instructions and schemas define the fields, limits, and preflight checks. Reuse the returned revisions and states for follow-up edits; inspect again after an external change, timeout, or uncertain result.
 
 Frame and instance inspection skips hidden text. Direct text targets include visibility flags; check `effectiveVisible` before treating a returned layer as visible on the canvas. Edit hidden text only when the user’s request includes it.
 
-For new text, the official MCP can create the layer using an available font. Apply the intended installed font, copy, and dimensions through the local tool before considering the design complete. A placeholder font is an intermediate state, not a substitute for the requested typeface.
+For new text, inspect neighboring text or search local fonts for the exact family and style, identify the intended parent, then call `figma_local_fonts_create`. It loads the font before any layer appears and returns a revision for subsequent edits. After a timeout, inspect the parent before retrying to avoid a duplicate. See [creation fields and limits](../../docs/text-tools.md#create-text).
 
 An edit is complete when every target reports success and its returned state matches the requested copy, fonts, sizing, and unaffected styles. After a composition or wrapping change, check a screenshot for clipping and alignment. A remote resize alone does not establish that missing-font text has reflowed correctly.
 
 ## Set up Agent Font Access
 
-When the local tools are unavailable, follow [source installation](../../README.md#installation), including registration and the Figma development import. For published-package testing, follow the [package guide](../../docs/package-testing.md). Agent clients share one desktop broker; use the incompatible-server recovery in troubleshooting if an older build occupies its port. Setup is complete when local status lists the intended file and inspection returns the intended text.
+When the local tools are unavailable, follow [source setup](../../docs/source-setup.md), including registration and the Figma development import. For published-package testing, follow the [package guide](../../docs/package-testing.md). Agent clients share one desktop broker; use the incompatible-server recovery in troubleshooting if an older build occupies its port. Status distinguishes a running server from an unconnected companion and returns concrete setup actions. An unconnected companion may be installed but closed; check before claiming it is missing. Build or register what the environment needs, and provide a full manifest path for any Figma import. Setup is complete when local status lists the intended file and inspection returns the intended text.
 
 ## Recover a connection or edit
 

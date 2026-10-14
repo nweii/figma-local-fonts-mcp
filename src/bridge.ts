@@ -2,7 +2,7 @@
 import { randomUUID, timingSafeEqual } from 'node:crypto';
 import { setTimeout, clearTimeout } from 'node:timers';
 import { WebSocket, WebSocketServer } from 'ws';
-import { inspectSchema, fontSearchSchema, editSchema } from './schema.ts';
+import { inspectSchema, fontSearchSchema, editSchema, createSchema } from './schema.ts';
 
 type Connection = { socket: WebSocket; connectionId: string; fileName: string; fileKey: string | null };
 type Pending = { socket: WebSocket; resolve: (data: unknown) => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> };
@@ -56,7 +56,7 @@ export class Bridge {
             if (message.type !== 'agentRequest' || typeof message.id !== 'string') return;
             const answer = async () => {
               if (message.method === 'status') return this.status();
-              const schemas = { inspect: inspectSchema, fonts: fontSearchSchema, edit: editSchema };
+              const schemas = { inspect: inspectSchema, fonts: fontSearchSchema, edit: editSchema, create: createSchema };
               if (!Object.hasOwn(schemas, message.method)) throw new Error('Unknown bridge method.');
               const method = message.method as keyof typeof schemas;
               return this.request(method, schemas[method].parse(message.args));
@@ -94,7 +94,7 @@ export class Bridge {
       instructions: 'Open the intended file in Figma Desktop and run Plugins > Development > Agent Font Access. If the plugin is already open but no file is connected, click Find agent sessions. Inspect before editing; existing node IDs from the official MCP work here.' };
   }
 
-  async request(method: 'inspect' | 'fonts' | 'edit', args: { connectionId?: string }, timeoutMs = 30000): Promise<unknown> {
+  async request(method: 'inspect' | 'fonts' | 'edit' | 'create', args: { connectionId?: string }, timeoutMs = 30000): Promise<unknown> {
     const connection = args.connectionId ? this.connections.get(args.connectionId) : this.connections.size === 1 ? [...this.connections.values()][0] : undefined;
     if (!connection) throw new Error(this.connections.size ? 'Choose a connectionId from figma_local_fonts_status so the correct file is targeted.' : 'Open Figma Desktop and run Plugins > Development > Agent Font Access in the intended file. If the plugin is already open, click Find agent sessions.');
     const id = randomUUID();
