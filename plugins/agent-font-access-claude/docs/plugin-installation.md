@@ -33,6 +33,10 @@ codex plugin add agent-font-access@agent-font-access
 
 If the plugin's bundled server is working, keep that registration as your only Agent Font Access server. If migrating from a standalone registration, verify the plugin tools first, then remove the old registration using [uninstall instructions](../README.md#uninstall).
 
+## Download a plugin ZIP
+
+The release ZIP contains both clients' manifests and MCP configuration, with one shared server and skill. Claude Code can load the ZIP for a session with `claude --plugin-dir /absolute/path/to/agent-font-access.zip`. For Codex, use the marketplace installation above.
+
 ## Set up the Figma companion
 
 Ask the agent to set up Agent Font Access in your intended Figma file. Its status tool returns a `prepareCommand` when the bundled companion needs preparation. The agent can run that command and import the result through native app tools, or give you the full manifest path for the import.

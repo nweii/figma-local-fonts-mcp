@@ -110,7 +110,7 @@ npm run build
 npm test
 ```
 
-Run `npm run check:release` to install and exercise the npm archive, check the bundled agent servers, and assemble review archives under `release/`. This check downloads npm dependencies and prepares temporary paired files; it does not publish.
+Run `npm run check:release` to install and exercise the npm archive, check the bundled agent servers, and assemble review archives under `release/`. This check uses npm, Bun, Claude Code CLI, `zip`, and `unzip`. It downloads npm dependencies and prepares temporary paired files; it does not publish.
 
 The tests cover text preservation, direct creation, MCP routing, and connection recovery. For a live check, use a disposable layer, verify its text and font, then remove it.
 

@@ -83,10 +83,22 @@ try {
     await verifyCompanion(process.execPath, [join(plugin, 'scripts/prepare-companion.mjs')], plugin, name);
     await verifyServer(name, process.execPath, [join(plugin, 'server/server.mjs')], plugin);
     assert.ok((await readFile(join(plugin, 'figma/ui.template.html'), 'utf8')).includes('__BRIDGE_TOKEN__'));
-    const zip = resolve(destination, `${name}-${version}.zip`);
-    await run('zip', ['-qr', zip, '.'], plugin);
-    artifacts.push(zip);
   }
+  const combined = join(temporary, 'combined plugin');
+  await cp(join(root, 'plugins/agent-font-access'), combined, { recursive: true });
+  await cp(join(root, 'plugins/agent-font-access-claude/.claude-plugin'), join(combined, '.claude-plugin'), { recursive: true });
+  await cp(join(root, 'plugins/agent-font-access-claude/.mcp.json'), join(combined, '.mcp.json'));
+  const zip = resolve(destination, `agent-font-access-${version}.zip`);
+  await run('zip', ['-qr', zip, '.'], combined);
+  const extracted = join(temporary, 'extracted plugin with spaces');
+  await run('unzip', ['-q', zip, '-d', extracted]);
+  const portable = JSON.parse(await readFile(join(extracted, 'mcp.json'), 'utf8')).mcpServers.figma_local_fonts;
+  const claude = JSON.parse(await readFile(join(extracted, '.mcp.json'), 'utf8')).mcpServers.figma_local_fonts;
+  await run('claude', ['plugin', 'validate', extracted, '--strict']);
+  await verifyServer('combined ZIP for Codex', portable.command, portable.args.map(arg => arg.replace('${PLUGIN_ROOT}', extracted)), extracted);
+  await verifyServer('combined ZIP for Claude Code', claude.command, claude.args.map(arg => arg.replace('${CLAUDE_PLUGIN_ROOT}', extracted)), extracted);
+  checks.push({ name: 'combined ZIP native manifest', passed: true });
+  artifacts.push(zip);
   const report = { version, checks, artifacts: await Promise.all(artifacts.map(async path => ({ file: path.slice(destination.length + 1), sha256: createHash('sha256').update(await readFile(path)).digest('hex') }))) };
   await writeFile(join(destination, 'checks.json'), JSON.stringify(report, null, 2) + '\n');
   console.log(JSON.stringify(report, null, 2));

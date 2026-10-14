@@ -19,3 +19,7 @@ When connection states or actions change, update the UI, MCP guidance, agent ski
 ## Agent plugin package
 
 `plugin-package/plugin.json`, `skills/`, and `src/` are canonical. Regenerate the portable Codex and native Claude packages under `plugins/` with `npm run build:plugin` after changes. Package only the Figma UI template; the paired UI is generated in private user storage. Validate both client manifests and test the bundled server without repository dependencies.
+
+## Release notes
+
+Use the version alone for GitHub release titles, such as `0.1.0-beta.3`. Write plain-language notes from `CHANGELOG.md`, grouped under the relevant Keep a Changelog categories. Keep unpublished changes under `Unreleased` and date version entries when published. Use GitHub's draft state for review status and attach verification results separately. Release downloads use one plugin ZIP containing both clients' configuration files.

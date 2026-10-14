@@ -1,22 +1,33 @@
 # Changelog
 
-## 0.1.0-beta.3 (release candidate)
+## [Unreleased]
 
-This candidate is prepared for review and has not been published to npm. The repository remains private during review; marketplace installation requires GitHub access to it. The npm `latest` tag still points to `0.1.0-beta.2`.
+### Added
 
-- Bundle the skill, local MCP server, and Figma companion preparation files for Claude Code and Codex.
-- Include companion preparation in the standalone npm package, with `prepare-companion`, `--help`, and `--version` CLI commands.
-- Create text directly with an installed font, loading that font before the layer appears.
-- Return setup actions and companion preparation commands through connection status.
-- Share one authenticated desktop broker across agent clients instead of reserving a desktop port per chat.
-- Keep other clients connected when one closes. Stop the broker 30 seconds after its last agent disconnects.
-- Document local storage, data handling, support, and removal for both installation paths.
+- Create text directly with locally installed fonts.
+- Agent plugins for Claude Code and Codex, including the MCP server, skill, and Figma companion setup files.
+- Prepare the Figma companion from npm with `prepare-companion`, without cloning the repository.
+- CLI help and version commands.
+- Privacy, support, and removal instructions.
 
-## 0.1.0-beta.2
+### Changed
 
-- Published package documentation explains local fonts, Figma account font uploads, and companion setup.
-- The package runs a separate desktop listener for each client, using one of ten allowed ports. It does not contain the shared-broker change.
+- Agent chats share one desktop connection. Closing one chat leaves the others connected.
+- Connection status includes companion setup steps.
+- One plugin ZIP includes configuration for both Claude Code and Codex.
 
-## 0.1.0-beta.1
+## [0.1.0-beta.2] - 2026-09-30
 
-- Initial prebuilt MCP package with status, text inspection, font search, and revision-protected batch editing through a development Figma Desktop companion.
+### Changed
+
+- Clarified local font access, Figma account font uploads, and companion setup in the package documentation.
+
+## [0.1.0-beta.1] - 2026-09-26
+
+### Added
+
+- Local MCP server and Figma Desktop companion for inspecting text, finding fonts, and editing text with revision checks.
+
+[Unreleased]: https://github.com/nweii/figma-local-fonts-mcp/commits/main
+[0.1.0-beta.2]: https://www.npmjs.com/package/figma-local-fonts-mcp/v/0.1.0-beta.2
+[0.1.0-beta.1]: https://www.npmjs.com/package/figma-local-fonts-mcp/v/0.1.0-beta.1
