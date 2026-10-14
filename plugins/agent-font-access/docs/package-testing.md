@@ -1,6 +1,6 @@
 # Set up the standalone MCP
 
-The npm package contains the prebuilt local server and files to prepare the Figma companion. Requires Node.js 24 or later and an MCP client that can launch a local process. Companion preparation requires `0.1.0-beta.3` or later. Check the [pending npm publication note](../README.md#connect-the-standalone-server) before using these commands.
+The npm package contains the prebuilt local server and files to prepare the Figma companion. Requires Node.js 24 or later and an MCP client that can launch a local process. Companion preparation requires `0.1.0-beta.3` or later.
 
 ## Register the server
 

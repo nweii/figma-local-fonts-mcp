@@ -27,8 +27,6 @@ For Codex, follow the [marketplace and desktop installation steps](docs/plugin-i
 
 ### Connect the standalone server
 
-The published npm beta is `0.1.0-beta.2`. Direct text creation, the shared broker, and companion preparation are pending publication in `0.1.0-beta.3`. Until that version is published, use the packaged agent plugin or [source setup](docs/source-setup.md) to test these features. See [release notes](CHANGELOG.md).
-
 For an MCP client with a setup form, use either `npx` or `bunx`.
 
 | Command | Arguments |
