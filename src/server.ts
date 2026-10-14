@@ -1,4 +1,5 @@
 // Exposes text tools to MCP clients and routes them to the local Figma Desktop plugin.
+import { readFile } from 'node:fs/promises';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { inspectSchema, fontSearchSchema, editSchema, createSchema } from './schema.ts';
@@ -7,8 +8,9 @@ import { getInstallationToken } from './installation.ts';
 import { companionSetup, connectionStatus } from './setup.ts';
 
 const sourceRoot = new URL('../', import.meta.url);
+const { version } = JSON.parse(await readFile(new URL('package.json', sourceRoot), 'utf8'));
 const bridge = await connectSharedBridge(await getInstallationToken(), new URL('./broker.js', import.meta.url));
-const server = new McpServer({ name: 'figma-local-fonts-mcp', version: '0.1.0-beta.2' }, {
+const server = new McpServer({ name: 'figma-local-fonts-mcp', version }, {
   instructions: 'Agent clients share one local desktop broker; closing another chat leaves this connection usable. Use official Figma tools for layout and Agent Font Access for text that needs fonts installed on this Mac. Create new text directly with figma_local_fonts_create after identifying its exact installed font and intended parent; the font loads before the layer appears. Creation is not idempotent: after a timeout inspect the parent before retrying to avoid a duplicate. Inspect selected text or explicit frame/text IDs locally. Container inspection returns visible text; an explicit text ID can inspect a hidden layer. Search installed fonts when an exact family and style is needed. Submit one batch of 1–30 unique inspected text nodes with their revisions; a fontName change intentionally changes the font family and style across the whole text layer, while copy replacement stays in one style run. The plugin loads all original and requested fonts before any write. Check every returned state. A failed batch reports applied, failed, and unattempted nodes. Use its fresh failed state to plan remaining changes; inspect again if that state is unreadable or the request timed out. If status has no connection, run Agent Font Access in the intended Figma Desktop file; if already open, click Find agent sessions.'
 });
 const readAnnotations = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false };

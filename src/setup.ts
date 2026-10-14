@@ -8,7 +8,8 @@ type Status = { port: number; connections: Array<{ connectionId: string; fileNam
 
 export function companionSetup(root: URL) {
   if (existsSync(new URL('figma/ui.template.html', root))) {
-    const prepareCommand = ['node', fileURLToPath(new URL('scripts/prepare-companion.mjs', root))];
+    const script = existsSync(new URL('dist/prepare-companion.mjs', root)) ? 'dist/prepare-companion.mjs' : 'scripts/prepare-companion.mjs';
+    const prepareCommand = ['node', fileURLToPath(new URL(script, root))];
     const manifestPath = join(companionDirectory, 'manifest.json');
     const built = existsSync(manifestPath) && existsSync(join(companionDirectory, 'code.js')) && existsSync(join(companionDirectory, 'ui.html'));
     return { manifestPath, built, prepareCommand, nextAction: built ? 'OPEN_COMPANION' : 'PREPARE_COMPANION',

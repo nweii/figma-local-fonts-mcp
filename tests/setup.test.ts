@@ -28,3 +28,16 @@ test('missing or closed companion returns concrete recovery without claiming it 
     assert.equal(connected.companion.nextAction, 'INSPECT_TEXT');
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
+
+test('npm resources return an executable preparation command from the installed package', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'font-npm-setup-'));
+  try {
+    await mkdir(join(directory, 'figma'));
+    await mkdir(join(directory, 'dist'));
+    await writeFile(join(directory, 'figma/ui.template.html'), '__BRIDGE_TOKEN__');
+    await writeFile(join(directory, 'dist/prepare-companion.mjs'), '// fixture');
+    const setup = companionSetup(pathToFileURL(directory + '/'));
+    assert.equal('agentCanPrepareFiles' in setup && setup.agentCanPrepareFiles, true);
+    assert.deepEqual('prepareCommand' in setup && setup.prepareCommand, ['node', join(directory, 'dist/prepare-companion.mjs')]);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});

@@ -5,12 +5,12 @@ description: Use when setting up Agent Font Access, creating or editing Figma te
 
 # Agent Font Access
 
-Use the bundled local tools for text creation, copy, typography, font selection, and wrapping. Use the official Figma tools for surrounding layout, non-text layers, and screenshots.
+Use the local tools for text creation, copy, typography, font selection, and wrapping. Use the official Figma tools for surrounding layout, non-text layers, and screenshots.
 
 ## Connect the intended file
 
-1. Find the `figma_local_fonts_` tools (status, inspect, search, create, edit); client prefixes vary. If they are missing, check that the Agent Font Access agent plugin is installed and enabled, inspect its MCP launch error, and start a fresh session if needed. Follow [plugin installation](../../docs/plugin-installation.md) for registration. If only some tools are available, check the installed version against the release notes and upgrade that installation. Preserve an existing working installation rather than adding a duplicate standalone server.
-2. Call status. When no companion is connected, follow its `companion.nextAction` and `prepareCommand`. The bundled preparation script creates paired Figma files in private user storage and returns the full manifest path. It does not print the credential. For a standalone server without these resources, follow [source setup](../../docs/source-setup.md).
+1. Find the `figma_local_fonts_` tools (status, inspect, search, create, edit); client prefixes vary. If they are missing, check the installed agent plugin or standalone MCP registration and inspect its launch error. Follow [installation](../../README.md#installation) for the matching path, then start a fresh session if needed. If only some tools are available, check the installed version against the release notes and upgrade that installation. Preserve an existing working installation rather than adding a duplicate standalone server.
+2. Call status. When no companion is connected, follow its `companion.nextAction` and `prepareCommand`. Preparation creates paired Figma files in private user storage and returns the full manifest path without printing the credential. Both the agent plugin and standalone npm package supply these resources. Follow the returned build instructions for a source checkout. If an older npm version requests missing source, check the [release notes](../../CHANGELOG.md) and upgrade to a version with companion preparation.
 3. Open the intended file in Figma Desktop. Check **Plugins → Development** for Agent Font Access; a disconnected companion may be installed but closed. Import the returned manifest if needed, run the companion, and click **Find agent sessions** if the server started later. Use native app tools when available. Otherwise give the user the full manifest path and this exact action; complete file preparation first.
 4. Confirm status lists the intended file and inspect the user's selected text or exact node IDs. Match its page, text, and font before writing. Keep the companion window open; collapsing its details preserves the connection.
 

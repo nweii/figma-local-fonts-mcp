@@ -4,7 +4,7 @@ Agent Font Access lets agents create and edit Figma text using fonts installed o
 
 Use Figma’s official MCP for surrounding layout and screenshots. The desktop workflow has been tested on macOS.
 
-The Figma companion is installed through a development import. The agent plugin can prepare its files for you.
+The Figma companion is installed through a development import. Either the agent plugin or standalone npm package can prepare its files for you.
 
 ## When to use it
 
@@ -12,19 +12,22 @@ Use Agent Font Access when Figma Desktop can use a font that your agent’s remo
 
 ## Installation
 
-Install the [agent plugin for Claude Code or Codex](docs/plugin-installation.md) to get the skill and local server together. It can also prepare the Figma companion for import. The standalone setup below remains available.
+You need Node.js 24 or later, Figma Desktop with edit access to a file, and the required fonts installed locally.
+
+Install the [agent plugin for Claude Code or Codex](docs/plugin-installation.md) to get the skill, local server, and Figma companion setup files together. The standalone setup below works with other MCP clients.
 
 For Claude Code, install from the repository marketplace.
 
 ```sh
-claude plugin install agent-font-access --marketplace nweii/figma-local-fonts-mcp --scope user
+claude plugin marketplace add nweii/figma-local-fonts-mcp
+claude plugin install agent-font-access@agent-font-access --scope user
 ```
 
 For Codex, follow the [marketplace and desktop installation steps](docs/plugin-installation.md#codex).
 
-You need Node.js 24 or later, Figma Desktop with edit access to a file, the required fonts installed locally, and an MCP client that can launch a local process.
+### Connect the standalone server
 
-### Connect the published server
+The published npm beta is `0.1.0-beta.2`. Direct text creation, the shared broker, and companion preparation are pending publication in `0.1.0-beta.3`. Until that version is published, use the packaged agent plugin or [source setup](docs/source-setup.md) to test these features. See [release notes](CHANGELOG.md).
 
 For an MCP client with a setup form, use either `npx` or `bunx`.
 
@@ -33,27 +36,22 @@ For an MCP client with a setup form, use either `npx` or `bunx`.
 | `npx` | `-y`, `figma-local-fonts-mcp@latest` |
 | `bunx` | `figma-local-fonts-mcp@latest` |
 
-The equivalent CLI commands are in [package setup](docs/package-testing.md). The Figma companion also needs to be built and imported from this repository.
-
-The published beta does not include the direct-creation tool or shared-server fix. To test those changes, use the source setup below. See [release notes](CHANGELOG.md).
-
-### Build the companion or test source changes
-
-Follow [source setup](docs/source-setup.md) to build the companion and obtain its manifest. That guide also provides the source-server registration for unpublished changes.
+Follow [standalone setup](docs/package-testing.md) to register the server and prepare the Figma companion without cloning this repository. Use [source setup](docs/source-setup.md) for development.
 
 ### Connect Figma Desktop
 
-1. In Figma Desktop, select **Plugins → Development → Import plugin from manifest…** and choose `plugin/manifest.json` from this repository. Import it once per installation.
-2. Open the intended file and run **Plugins → Development → Agent Font Access**. If the companion is already open, click **Find agent sessions**.
-3. Ask the agent to call `figma_local_fonts_status`. It should list the intended file.
-4. Select a text layer and ask the agent to inspect it. Confirm that the returned text and font match your selection.
+1. Ask the agent to call `figma_local_fonts_status` and run its `prepareCommand` if preparation is needed. The command returns the full manifest path.
+2. In Figma Desktop, select **Plugins → Development → Import plugin from manifest…** and choose that manifest. Import it once per installation.
+3. Open the intended file and run **Plugins → Development → Agent Font Access**. If the companion is already open, click **Find agent sessions**.
+4. Ask the agent to call `figma_local_fonts_status`. It should list the intended file.
+5. Select a text layer and ask the agent to inspect it. Confirm that the returned text and font match your selection.
 
 Keep the companion window open while inspecting or editing. Closing it disconnects the file. You can collapse its details into a compact status panel without disconnecting.
 
 ### Let an agent set it up
 
 ```text
-Set up Agent Font Access for my local MCP client using README.md#installation. Use the source build when I need changes not yet published to npm. Keep the installation credential private. Give me the full manifest path for the Figma import. After I open the companion in my intended file, verify that status lists that file and inspection returns my selected text and font. Report which checks passed and any remaining manual step. Ask before testing a write on a disposable duplicate.
+Set up Agent Font Access for my local MCP client using README.md#installation. Preserve an existing working registration. Call status and follow its setup actions, including prepareCommand when present. Keep the installation credential private. Prepare the files before giving me the full manifest path and Figma import steps. After the companion opens in my intended file, verify that status lists that file and inspection returns my selected text and font. Report the checks that passed and any remaining manual step. Ask before testing a write on a disposable duplicate.
 ```
 
 ## Usage
@@ -80,25 +78,27 @@ See [troubleshooting](docs/troubleshooting.md) for missing connections, unavaila
 
 ## Privacy and network access
 
-Agent clients share one local connection to Figma Desktop. The bridge listens only on this computer’s loopback interface.
+The bridge connects only through this computer's loopback interface. It makes no requests to hosted services and does not upload font files. Text, styles, and file metadata returned through MCP reach the agent client and provider you use. Figma's normal document sync still applies.
 
-The bridge makes no requests to hosted services and does not upload font files. Figma’s normal document sync still applies. Text, style metadata, and file names returned through MCP are available to the agent provider you use.
-
-On macOS, the installation credential lives at `~/Library/Application Support/Agent Font Access/installation.json`. The development build embeds it in generated `plugin/ui.html`. Generated credential-bearing files are excluded from Git and the npm package. Keep them out of archives and support messages. Clients running under your user account with access to this credential can connect to the broker.
+See [privacy and local storage](PRIVACY.md) for stored files, credentials, and data handling.
 
 ## Uninstall
 
-Remove the server from the client where you registered it.
+If you installed the agent plugin, remove **Agent Font Access** through your client's plugin manager. The CLI equivalents are below.
 
 ```sh
-codex mcp remove figma_local_fonts
+claude plugin uninstall agent-font-access@agent-font-access --scope user
+codex plugin remove agent-font-access@agent-font-access
 ```
+
+If you registered the standalone MCP, remove that registration instead.
 
 ```sh
 claude mcp remove --scope user figma_local_fonts
+codex mcp remove figma_local_fonts
 ```
 
-Close the companion and remove its development entry in Figma. Close agent sessions still using the server so the shared broker can stop. Removal leaves the source directory, installed dependencies, and installation credential on disk.
+Close the companion and remove its development entry in Figma. Close agent sessions still using the server so the shared broker can stop. Removing a registration leaves the installation credential and paired companion files on disk. See [local storage](PRIVACY.md#local-storage) for their locations. Move that directory to Trash if you want to remove those files too. Source checkouts and npm caches are separate from these files.
 
 ## Development
 
@@ -110,9 +110,15 @@ npm run build
 npm test
 ```
 
+Run `npm run check:release` to install and exercise the npm archive, check the bundled agent servers, and assemble review archives under `release/`. This check downloads npm dependencies and prepares temporary paired files; it does not publish.
+
 The tests cover text preservation, direct creation, MCP routing, and connection recovery. For a live check, use a disposable layer, verify its text and font, then remove it.
 
 After source changes, build again and restart the MCP clients and shared broker so they load the rebuilt code. Reopen the Figma companion to load its generated files. See [development restart instructions](docs/troubleshooting.md#restart-after-a-source-build).
+
+## Support
+
+For setup problems, start with [troubleshooting](docs/troubleshooting.md). Report reproducible bugs in [GitHub issues](https://github.com/nweii/figma-local-fonts-mcp/issues), with the package version, operating system, client, and steps to reproduce. Use fictional text in examples and keep credentials and paired UI files out of reports. For vulnerabilities, follow [security reporting](SECURITY.md).
 
 ## AI usage
 

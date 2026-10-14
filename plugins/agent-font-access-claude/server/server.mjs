@@ -10679,7 +10679,7 @@ var require_websocket_server = __commonJS({
         socket.on("error", socketOnError);
         const key = req.headers["sec-websocket-key"];
         const upgrade = req.headers.upgrade;
-        const version2 = +req.headers["sec-websocket-version"];
+        const version3 = +req.headers["sec-websocket-version"];
         if (req.method !== "GET") {
           const message = "Invalid HTTP method";
           abortHandshakeOrEmitwsClientError(this, req, socket, 405, message);
@@ -10695,7 +10695,7 @@ var require_websocket_server = __commonJS({
           abortHandshakeOrEmitwsClientError(this, req, socket, 400, message);
           return;
         }
-        if (version2 !== 13 && version2 !== 8) {
+        if (version3 !== 13 && version3 !== 8) {
           const message = "Missing or invalid Sec-WebSocket-Version header";
           abortHandshakeOrEmitwsClientError(this, req, socket, 400, message, {
             "Sec-WebSocket-Version": "13, 8"
@@ -10739,7 +10739,7 @@ var require_websocket_server = __commonJS({
         }
         if (this.options.verifyClient) {
           const info = {
-            origin: req.headers[`${version2 === 8 ? "sec-websocket-origin" : "origin"}`],
+            origin: req.headers[`${version3 === 8 ? "sec-websocket-origin" : "origin"}`],
             secure: !!(req.socket.authorized || req.socket.encrypted),
             req
           };
@@ -10871,6 +10871,9 @@ var require_websocket_server = __commonJS({
     }
   }
 });
+
+// src/server.ts
+import { readFile as readFile2 } from "node:fs/promises";
 
 // node_modules/zod/v3/external.js
 var external_exports = {};
@@ -11850,11 +11853,11 @@ function datetimeRegex(args) {
   regex = `${regex}(${opts.join("|")})`;
   return new RegExp(`^${regex}$`);
 }
-function isValidIP(ip, version2) {
-  if ((version2 === "v4" || !version2) && ipv4Regex.test(ip)) {
+function isValidIP(ip, version3) {
+  if ((version3 === "v4" || !version3) && ipv4Regex.test(ip)) {
     return true;
   }
-  if ((version2 === "v6" || !version2) && ipv6Regex.test(ip)) {
+  if ((version3 === "v6" || !version3) && ipv6Regex.test(ip)) {
     return true;
   }
   return false;
@@ -11881,11 +11884,11 @@ function isValidJWT(jwt, alg) {
     return false;
   }
 }
-function isValidCidr(ip, version2) {
-  if ((version2 === "v4" || !version2) && ipv4CidrRegex.test(ip)) {
+function isValidCidr(ip, version3) {
+  if ((version3 === "v4" || !version3) && ipv4CidrRegex.test(ip)) {
     return true;
   }
-  if ((version2 === "v6" || !version2) && ipv6CidrRegex.test(ip)) {
+  if ((version3 === "v6" || !version3) && ipv6CidrRegex.test(ip)) {
     return true;
   }
   return false;
@@ -15630,10 +15633,10 @@ var ksuid = /^[A-Za-z0-9]{27}$/;
 var nanoid = /^[a-zA-Z0-9_-]{21}$/;
 var duration = /^P(?:(\d+W)|(?!.*W)(?=\d|T\d)(\d+Y)?(\d+M)?(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+([.,]\d+)?S)?)?)$/;
 var guid = /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/;
-var uuid = (version2) => {
-  if (!version2)
+var uuid = (version3) => {
+  if (!version3)
     return /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$/;
-  return new RegExp(`^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-${version2}[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`);
+  return new RegExp(`^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-${version3}[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`);
 };
 var email = /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/;
 var _emoji = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`;
@@ -25377,7 +25380,8 @@ var companionDirectory = join2(dirname2(installationFile), "companion");
 // src/setup.ts
 function companionSetup(root) {
   if (existsSync(new URL("figma/ui.template.html", root))) {
-    const prepareCommand = ["node", fileURLToPath2(new URL("scripts/prepare-companion.mjs", root))];
+    const script = existsSync(new URL("dist/prepare-companion.mjs", root)) ? "dist/prepare-companion.mjs" : "scripts/prepare-companion.mjs";
+    const prepareCommand = ["node", fileURLToPath2(new URL(script, root))];
     const manifestPath2 = join3(companionDirectory, "manifest.json");
     const built2 = existsSync(manifestPath2) && existsSync(join3(companionDirectory, "code.js")) && existsSync(join3(companionDirectory, "ui.html"));
     return {
@@ -25416,8 +25420,9 @@ function connectionStatus(status, root) {
 
 // src/server.ts
 var sourceRoot = new URL("../", import.meta.url);
+var { version: version2 } = JSON.parse(await readFile2(new URL("package.json", sourceRoot), "utf8"));
 var bridge = await connectSharedBridge(await getInstallationToken(), new URL("./broker.js", import.meta.url));
-var server = new McpServer({ name: "figma-local-fonts-mcp", version: "0.1.0-beta.2" }, {
+var server = new McpServer({ name: "figma-local-fonts-mcp", version: version2 }, {
   instructions: "Agent clients share one local desktop broker; closing another chat leaves this connection usable. Use official Figma tools for layout and Agent Font Access for text that needs fonts installed on this Mac. Create new text directly with figma_local_fonts_create after identifying its exact installed font and intended parent; the font loads before the layer appears. Creation is not idempotent: after a timeout inspect the parent before retrying to avoid a duplicate. Inspect selected text or explicit frame/text IDs locally. Container inspection returns visible text; an explicit text ID can inspect a hidden layer. Search installed fonts when an exact family and style is needed. Submit one batch of 1\u201330 unique inspected text nodes with their revisions; a fontName change intentionally changes the font family and style across the whole text layer, while copy replacement stays in one style run. The plugin loads all original and requested fonts before any write. Check every returned state. A failed batch reports applied, failed, and unattempted nodes. Use its fresh failed state to plan remaining changes; inspect again if that state is unreadable or the request timed out. If status has no connection, run Agent Font Access in the intended Figma Desktop file; if already open, click Find agent sessions."
 });
 var readAnnotations = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false };

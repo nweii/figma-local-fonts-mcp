@@ -7,7 +7,7 @@
     {
       "name": "agent-font-access",
       "source": "./plugins/agent-font-access-claude",
-      "version": "0.1.0",
+      "version": "0.1.0-beta.3",
       "description": "Create and edit Figma text with locally installed fonts."
     }
   ],

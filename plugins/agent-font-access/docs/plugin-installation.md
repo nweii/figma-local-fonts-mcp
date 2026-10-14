@@ -25,9 +25,13 @@ Register the repository marketplace.
 codex plugin marketplace add nweii/figma-local-fonts-mcp
 ```
 
-Open **Plugins** in Codex desktop, choose the **Agent Font Access** marketplace, and install **Agent Font Access**. Start a fresh session after installation. The plugin supplies its skill and local MCP registration.
+Open **Plugins** in Codex desktop, choose the **Agent Font Access** marketplace, and install **Agent Font Access**. Start a fresh session after installation. The plugin supplies its skill and local MCP registration. With a Codex CLI that supports `plugin add`, you can also install after marketplace registration.
 
-The repository is private, so GitHub access is required to fetch either marketplace. Do not add another standalone server if the plugin's bundled server is working. If migrating from a standalone registration, verify the plugin tools first, then remove the old registration using [uninstall instructions](../README.md#uninstall).
+```sh
+codex plugin add agent-font-access@agent-font-access
+```
+
+If the plugin's bundled server is working, keep that registration as your only Agent Font Access server. If migrating from a standalone registration, verify the plugin tools first, then remove the old registration using [uninstall instructions](../README.md#uninstall).
 
 ## Set up the Figma companion
 
@@ -35,7 +39,7 @@ Ask the agent to set up Agent Font Access in your intended Figma file. Its statu
 
 Preparation stores paired files under `~/Library/Application Support/Agent Font Access/companion/` on macOS. Import the returned `manifest.json` through **Plugins → Development → Import plugin from manifest…**, then run **Agent Font Access** in your file. Keep the window open while the agent works.
 
-The files shipped in the agent plugin contain no installation credential. Preparation uses the same private per-user credential as the local server. Figma Community publication is not needed for this development import.
+The files shipped in the agent plugin contain no installation credential. Preparation uses the same private per-user credential as the local server. Figma Community publication is not needed for this development import. See [privacy and storage](../PRIVACY.md) for the generated files and [uninstall](../README.md#uninstall) for removal.
 
 ## Build and check a package
 
@@ -47,4 +51,4 @@ npm run build:plugin
 claude plugin validate ./plugins/agent-font-access-claude --strict
 ```
 
-`plugin-package/plugin.json`, the repository skill, and source code are canonical. `plugins/agent-font-access/` (portable Codex package) and `plugins/agent-font-access-claude/` (native Claude package) are generated and committed for marketplace installation. Regenerate it after changing code, skills, or supporting docs; do not edit its copies directly. The Codex package uses portable `plugin.json` and `mcp.json`. The Claude package uses `.claude-plugin/plugin.json` and `.mcp.json`. Both contain the same skill, runtime, and supporting files.
+`plugin-package/plugin.json`, the repository skill, and source code are canonical. `plugins/agent-font-access/` (portable Codex package) and `plugins/agent-font-access-claude/` (native Claude package) are generated and committed for marketplace installation. Regenerate both packages after changing code, skills, or supporting docs; do not edit their copies directly. The Codex package uses portable `plugin.json` and `mcp.json`. The Claude package uses `.claude-plugin/plugin.json` and `.mcp.json`. Both contain the same skill, runtime, and supporting files.

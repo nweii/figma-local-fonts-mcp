@@ -1,16 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.1.0-beta.3 (release candidate)
+
+This candidate is prepared for review and has not been published to npm. The repository remains private during review; marketplace installation requires GitHub access to it. The npm `latest` tag still points to `0.1.0-beta.2`.
 
 - Bundle the skill, local MCP server, and Figma companion preparation files for Claude Code and Codex.
-
+- Include companion preparation in the standalone npm package, with `prepare-companion`, `--help`, and `--version` CLI commands.
 - Create text directly with an installed font, loading that font before the layer appears.
-- Connection status gives agents setup actions and the companion manifest path when available.
-
-- Agent clients share one authenticated desktop broker instead of reserving a desktop port per chat.
-- Closing one client leaves other clients connected. The broker stops 30 seconds after its last agent disconnects.
-- The companion identifies its shared desktop connection separately from individual agent sessions.
-- The README uses source installation as the primary setup path.
+- Return setup actions and companion preparation commands through connection status.
+- Share one authenticated desktop broker across agent clients instead of reserving a desktop port per chat.
+- Keep other clients connected when one closes. Stop the broker 30 seconds after its last agent disconnects.
+- Document local storage, data handling, support, and removal for both installation paths.
 
 ## 0.1.0-beta.2
 

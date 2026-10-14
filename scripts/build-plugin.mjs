@@ -30,6 +30,8 @@ await cp('src/ui.html', join(destination, 'figma/ui.template.html'));
 await cp('skills', join(destination, 'skills'), { recursive: true });
 await cp('docs', join(destination, 'docs'), { recursive: true });
 await cp('LICENSE', join(destination, 'LICENSE'));
+await cp('PRIVACY.md', join(destination, 'PRIVACY.md'));
+await cp('SECURITY.md', join(destination, 'SECURITY.md'));
 await cp('CHANGELOG.md', join(destination, 'CHANGELOG.md'));
 await cp('README.md', join(destination, 'README.md'));
 const packages = new Set(outputs.flatMap(output => Object.keys(output.metafile.inputs)).filter(path => path.startsWith('node_modules/')).map(path => {

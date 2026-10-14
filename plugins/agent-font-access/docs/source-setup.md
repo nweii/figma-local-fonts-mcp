@@ -1,6 +1,6 @@
 # Set up from source
 
-Use this path to build the Figma companion or test server changes before they are published to npm. Requires Node.js 24 or later.
+Use this path to develop Agent Font Access or test source changes. Requires Node.js 24 or later. For installation without a checkout, use the [agent plugin](plugin-installation.md) or [standalone MCP](package-testing.md).
 
 ## Build the source
 
@@ -32,5 +32,7 @@ claude mcp add --scope user --transport stdio figma_local_fonts -- "$(command -v
 ```
 
 Start a fresh agent session after registration. Keep the repository at the registered path.
+
+Import the generated `plugin/manifest.json` in Figma Desktop. This source companion embeds the installation credential in `plugin/ui.html`; keep that file private.
 
 Continue with [Figma Desktop setup](../README.md#connect-figma-desktop). For an existing installation, follow [restart instructions](troubleshooting.md#restart-after-a-source-build) after rebuilding.

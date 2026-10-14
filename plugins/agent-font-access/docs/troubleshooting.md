@@ -12,11 +12,11 @@ The companion UI has not received its startup message from the Figma plugin. Clo
 
 ## “The companion could not pair with the server”
 
-The server and companion may have different installation credentials. Build the project whose development manifest you imported, then restart the MCP server and reopen its companion. The credential is stored in `~/Library/Application Support/Agent Font Access/installation.json` on macOS; keep that file and generated `plugin/ui.html` private. Checking this does not require pasting their contents into an agent conversation.
+The server and companion may have different installation credentials. Call status and run its `companion.prepareCommand` to regenerate the paired files. For a source installation, rebuild the checkout whose development manifest you imported. Restart the MCP server and reopen the companion. If the manifest path changed, import the returned manifest. Keep the installation credential and generated `ui.html` private; checking this does not require pasting their contents into an agent conversation.
 
 ## The agent has no local text tools
 
-Check the client's MCP configuration for `figma_local_fonts` and its server launch error. The registered executable and server path must resolve. Follow [installation](../README.md#installation) if registration is missing. Start a fresh agent session if the client has not refreshed its tool list.
+For an agent plugin, check that Agent Font Access is installed and enabled. For a standalone MCP, check the client's `figma_local_fonts` registration. Inspect the server launch error and confirm that its command resolves. Follow [installation](../README.md#installation) if registration is missing, then start a fresh agent session.
 
 ## “Figma Desktop reports a missing font”
 
@@ -60,7 +60,7 @@ Close the Figma companion and every agent session using this server. The shared 
 
 ## The server is running but no file is connected
 
-Call `figma_local_fonts_status`. Its `companion.nextAction` identifies the recovery step: obtain source, build the companion, or open it in Figma Desktop. When the source is available, status includes the full manifest path. A disconnected companion may already be installed but closed; check the development menu before importing it again. Agents can prepare the source and build, and use native app tools to import or open the companion when available.
+Call `figma_local_fonts_status`. Follow its `companion.nextAction` and run `companion.prepareCommand` when present. Preparation returns the full manifest path for Figma Desktop import. A disconnected companion may already be installed but closed; check the development menu before importing it again. Agents can prepare the files and use native app tools to import or open the companion when available. For source builds, follow the returned build instructions. An older npm version may require an upgrade; check the [release notes](../CHANGELOG.md).
 
 ## A creation response was lost
 

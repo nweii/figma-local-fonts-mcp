@@ -1,6 +1,6 @@
 {
   "name": "figma-local-fonts-mcp",
-  "version": "0.1.0-beta.2",
+  "version": "0.1.0-beta.3",
   "license": "MIT",
   "type": "module",
   "publishConfig": {
@@ -14,10 +14,17 @@
     "bin/figma-local-fonts-mcp.mjs",
     "dist/server.js",
     "dist/broker.js",
+    "dist/companion.js",
+    "dist/prepare-companion.mjs",
+    "figma/code.js",
+    "figma/manifest.json",
+    "figma/ui.template.html",
     "LICENSE",
     "README.md",
-    "docs/troubleshooting.md",
-    "skills/figma-local-fonts/SKILL.md",
+    "PRIVACY.md",
+    "SECURITY.md",
+    "docs/",
+    "skills/figma-local-fonts/",
     "CHANGELOG.md"
   ],
   "engines": {
@@ -28,7 +35,9 @@
     "check": "tsc --noEmit",
     "test": "node --test tests/*.test.ts tests/*.test.mjs",
     "start": "node dist/server.js",
-    "build:plugin": "node scripts/build-plugin.mjs"
+    "build:plugin": "node scripts/build-plugin.mjs",
+    "prepack": "npm run build -- --unpaired",
+    "check:release": "node scripts/check-release.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.1",

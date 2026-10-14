@@ -4,3 +4,6 @@ dist/
 plugin/code.js
 plugin/ui.html
 .DS_Store
+figma/
+release/
+*.tgz
