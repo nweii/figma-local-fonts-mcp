@@ -16,6 +16,8 @@ Draft releases, branch pushes, pull requests, and manual runs with no release ta
 
 To retry a failed npm publication, open the **Release** workflow in GitHub Actions, choose **Run workflow** on main, and enter the existing published GitHub release's tag in **release_tag**. The workflow rejects draft or missing releases and version mismatches. Its publication job uses the exact commit verified by the checking job.
 
+The verification report records the package's source commit. npm provenance identifies the workflow invocation; for a retry, that workflow runs from main while the package is built from the release tag.
+
 ## Configure npm trusted publishing
 
 In the npm package's settings, authorize GitHub Actions with these values:

@@ -71,6 +71,16 @@ jobs:
         run: |
           version="$(node -p "require('./package.json').version")"
           npx --yes npm@12.2.0 publish "./release/figma-local-fonts-mcp-${version}.tgz" --dry-run --access public --tag latest --ignore-scripts
+      - name: Record archive source
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          const report = JSON.parse(readFileSync('release/checks.json', 'utf8'));
+          report.sourceCommit = process.env.SOURCE_SHA;
+          writeFileSync('release/checks.json', JSON.stringify(report, null, 2) + '\n');
+          NODE
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: release-${{ github.run_id }}
