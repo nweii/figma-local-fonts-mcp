@@ -112,6 +112,8 @@ Run `npm run check:release` to install and exercise the npm archive, check the b
 
 The tests cover text preservation, direct creation, MCP routing, and connection recovery. For a live check, use a disposable layer, verify its text and font, then remove it.
 
+Follow [release instructions](docs/releasing.md) to publish through GitHub Actions and npm trusted publishing.
+
 After source changes, build again and restart the MCP clients and shared broker so they load the rebuilt code. Reopen the Figma companion to load its generated files. See [development restart instructions](docs/troubleshooting.md#restart-after-a-source-build).
 
 ## Support
