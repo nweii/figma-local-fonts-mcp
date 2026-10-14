@@ -12,7 +12,9 @@ GitHub Actions checks each push and pull request to main. Publishing a GitHub re
 5. Create a GitHub release with a tag matching the package version, such as `v0.1.0-beta.4`. Use the version alone for the title and the relevant changelog categories for its notes. Mark beta releases as prereleases.
 6. Publish the GitHub release. Check that the workflow succeeds and npm resolves the released version.
 
-Draft releases, branch pushes, pull requests, and manual workflow runs do not publish to npm. The release tag must match `package.json` before package checks proceed. The workflow uses the tagged commit and publishes the archive produced by its verification job.
+Draft releases, branch pushes, pull requests, and manual runs with no release tag do not publish to npm. The release tag must match `package.json` before package checks proceed. The workflow uses the tagged commit and publishes the archive produced by its verification job.
+
+To retry a failed npm publication, open the **Release** workflow in GitHub Actions, choose **Run workflow** on main, and enter the existing published GitHub release's tag in **release_tag**. The workflow rejects draft or missing releases and version mismatches. Its publication job uses the exact commit verified by the checking job.
 
 ## Configure npm trusted publishing
 
