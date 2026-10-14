@@ -1,6 +1,6 @@
 {
   "name": "agent-font-access",
-  "version": "0.1.0-beta.3",
+  "version": "0.1.0-beta.4",
   "description": "Create and edit Figma text with locally installed fonts, and set up its Figma Desktop companion.",
   "author": {
     "name": "Nathan Cheng"

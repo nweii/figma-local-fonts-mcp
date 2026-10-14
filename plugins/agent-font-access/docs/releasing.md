@@ -5,6 +5,7 @@ GitHub Actions checks each push and pull request to main. Publishing a GitHub re
 ## Prepare the version
 
 1. Update the version in `package.json`, `package-lock.json`, and `plugin-package/plugin.json`.
+   Set the same plugin version in `.agents/plugins/marketplace.json` and `.claude-plugin/marketplace.json`.
 2. Move the release changes from `Unreleased` to a dated version section in `CHANGELOG.md`.
 3. Run `npm run build:plugin` to regenerate both committed agent packages.
 4. Commit and push the release files. Wait for the **Release** workflow's verification job to pass.

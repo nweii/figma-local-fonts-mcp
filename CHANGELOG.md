@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.1.0-beta.4] - 2026-10-14
+
+### Added
+
+- Publish npm packages and attach release downloads automatically when a GitHub release is published.
+- GitHub Actions checks for package builds, tests, and release archives.
+
 ## [0.1.0-beta.3] - 2026-10-14
 
 ### Added
@@ -30,7 +37,8 @@
 
 - Local MCP server and Figma Desktop companion for inspecting text, finding fonts, and editing text with revision checks.
 
-[Unreleased]: https://github.com/nweii/figma-local-fonts-mcp/compare/v0.1.0-beta.3...HEAD
+[Unreleased]: https://github.com/nweii/figma-local-fonts-mcp/compare/v0.1.0-beta.4...HEAD
+[0.1.0-beta.4]: https://github.com/nweii/figma-local-fonts-mcp/releases/tag/v0.1.0-beta.4
 [0.1.0-beta.3]: https://github.com/nweii/figma-local-fonts-mcp/releases/tag/v0.1.0-beta.3
 [0.1.0-beta.2]: https://www.npmjs.com/package/figma-local-fonts-mcp/v/0.1.0-beta.2
 [0.1.0-beta.1]: https://www.npmjs.com/package/figma-local-fonts-mcp/v/0.1.0-beta.1
