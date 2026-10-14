@@ -26,12 +26,12 @@ You need Node.js 24 or later, Figma Desktop with edit access to a file, the requ
 
 ### Connect the published server
 
-For an MCP client with a setup form, enter these values.
+For an MCP client with a setup form, use either `npx` or `bunx`.
 
-| Field | Value |
+| Command | Arguments |
 | --- | --- |
-| Command | `npx` |
-| Arguments | `-y`, `figma-local-fonts-mcp@latest` |
+| `npx` | `-y`, `figma-local-fonts-mcp@latest` |
+| `bunx` | `figma-local-fonts-mcp@latest` |
 
 The equivalent CLI commands are in [package setup](docs/package-testing.md). The Figma companion also needs to be built and imported from this repository.
 
