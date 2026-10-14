@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.local.json
+plugin/code.js
+plugin/ui.html
+.DS_Store

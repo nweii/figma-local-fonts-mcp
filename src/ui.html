@@ -1,0 +1,140 @@
+<!-- Connects this Figma plugin to the shared local desktop bridge and shows connection activity. -->
+<!doctype html><html><head><meta charset="utf-8"><style>
+* { box-sizing: border-box; }
+body { margin: 0; font: 12px/1.45 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; color: var(--figma-color-text, #222); background: var(--figma-color-bg, #fff); }
+button { font: inherit; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--figma-color-border-selected, #0d99ff); outline-offset: 2px; }
+.summary { height: 56px; display: flex; align-items: center; gap: 10px; padding: 0 10px 0 14px; }
+.dot { width: 7px; height: 7px; flex: none; border-radius: 50%; background: var(--figma-color-icon-secondary, #888); }
+.dot[data-state="connected"] { background: var(--figma-color-bg-success, #14ae5c); }
+.dot[data-state="attention"] { background: var(--figma-color-bg-warning, #ffcd29); }
+.summary-copy { min-width: 0; flex: 1; }
+.status { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sessions { min-height: 14px; color: var(--figma-color-text-secondary, #666); font-size: 11px; }
+.toggle { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border: 0; border-radius: 6px; color: var(--figma-color-icon-secondary, #666); background: transparent; }
+.toggle svg { transition: transform 160ms cubic-bezier(.16, 1, .3, 1); }
+.shell[data-collapsed="true"] .toggle svg { transform: rotate(180deg); }
+.toggle:active { background: var(--figma-color-bg-pressed, #eee); }
+.details { height: 128px; display: flex; flex-direction: column; gap: 8px; padding: 11px 14px 14px; border-top: 1px solid var(--figma-color-border, #e6e6e6); transition: opacity 150ms cubic-bezier(.16, 1, .3, 1), transform 150ms cubic-bezier(.16, 1, .3, 1); }
+.details[hidden] { display: none; }
+.shell[data-collapsed="true"] .details { opacity: 0; transform: translateY(-4px); pointer-events: none; }
+.activity { min-height: 0; flex: 1; margin: 0; overflow: auto; color: var(--figma-color-text-secondary, #666); overflow-wrap: anywhere; }
+.find { min-height: 30px; align-self: flex-start; padding: 0 10px; border: 1px solid var(--figma-color-border-strong, #ccc); border-radius: 6px; color: var(--figma-color-text, #222); background: var(--figma-color-bg, #fff); font-weight: 600; }
+.find:disabled { opacity: .5; cursor: default; }
+.find:active:not(:disabled) { background: var(--figma-color-bg-pressed, #eee); }
+@media (hover: hover) and (pointer: fine) { .toggle:hover { background: var(--figma-color-bg-hover, #f5f5f5); } .find:hover:not(:disabled) { background: var(--figma-color-bg-hover, #f5f5f5); } }
+.shell[data-motion="instant"] .details, .shell[data-motion="instant"] .toggle svg { transition: none; }
+@media (prefers-reduced-motion: reduce) { .details, .toggle svg { transition: none; } }
+</style></head><body><main id="shell" class="shell" data-collapsed="false"><div class="summary"><span id="dot" class="dot" aria-hidden="true"></span><div class="summary-copy"><div id="status" class="status" role="status">Connecting to Figma…</div><div id="sessions" class="sessions"></div></div><button id="toggle" class="toggle" type="button" aria-controls="details" aria-expanded="true" aria-label="Collapse details" title="Collapse details"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 10 4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div id="details" class="details"><p id="activity" class="activity">Select text or give your agent a Figma link.</p><button id="find" class="find" type="button" disabled>Find agent sessions</button></div></main><script>
+// Reconnects independently to each local MCP session without exposing the credential in URLs.
+const token = '__BRIDGE_TOKEN__';
+const sockets = new Map();
+const retryCounts = new Map();
+const retryTimers = new Map();
+let identity;
+let authenticationFailed = false;
+let lastError = '';
+let collapsed = false;
+let resizeTimer;
+let revealFrame;
+const shell = document.getElementById('shell');
+const status = document.getElementById('status');
+const sessions = document.getElementById('sessions');
+const dot = document.getElementById('dot');
+const activity = document.getElementById('activity');
+const find = document.getElementById('find');
+const toggle = document.getElementById('toggle');
+const details = document.getElementById('details');
+function render() {
+  const count = [...sockets.values()].filter(s => s.authenticated).length;
+  status.textContent = lastError ? 'Needs attention' : count ? 'Connected' : !identity ? 'Connecting to Figma…' : sockets.size || retryTimers.size ? 'Finding agent sessions…' : authenticationFailed ? 'Connection needs attention' : 'No agent connected';
+  sessions.textContent = count ? `${count} desktop bridge${count === 1 ? '' : 's'}` : '';
+  dot.dataset.state = lastError || (authenticationFailed && !count) ? 'attention' : count ? 'connected' : 'idle';
+  toggle.title = lastError && collapsed ? 'Expand to read error' : collapsed ? 'Expand details' : 'Collapse details';
+  toggle.setAttribute('aria-label', toggle.title);
+  if (identity && !count && !sockets.size && !retryTimers.size && !lastError) activity.textContent = authenticationFailed ? 'An agent session closed before authentication. Check that the plugin and MCP server use the same build.' : 'Start an agent session, then click Find agent sessions.';
+}
+function setCollapsed(next, immediate = false) {
+  if (collapsed === next) return;
+  collapsed = next;
+  clearTimeout(resizeTimer);
+  cancelAnimationFrame(revealFrame);
+  const animate = !immediate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  shell.dataset.motion = animate ? 'animated' : 'instant';
+  toggle.setAttribute('aria-expanded', String(!collapsed));
+  details.inert = collapsed;
+  details.setAttribute('aria-hidden', String(collapsed));
+  if (collapsed) {
+    shell.dataset.collapsed = 'true';
+    const finish = () => { if (!collapsed) return; details.hidden = true; parent.postMessage({ pluginMessage: { type: 'resize', height: 56 } }, '*'); };
+    if (animate) resizeTimer = setTimeout(finish, 150); else finish();
+  } else {
+    details.hidden = false;
+    parent.postMessage({ pluginMessage: { type: 'resize', height: 184 } }, '*');
+    if (animate) revealFrame = requestAnimationFrame(() => { if (!collapsed) shell.dataset.collapsed = 'false'; });
+    else shell.dataset.collapsed = 'false';
+  }
+  render();
+}
+toggle.onclick = event => setCollapsed(!collapsed, event.detail === 0);
+function retry(port) {
+  const count = retryCounts.get(port);
+  if (count === undefined || count >= 2) { retryCounts.delete(port); return; }
+  retryCounts.set(port, count + 1);
+  retryTimers.set(port, setTimeout(() => { retryTimers.delete(port); connect(port); render(); }, 1500 * (count + 1)));
+}
+function connect(port) {
+  if (!identity || sockets.has(port)) return;
+  const socket = new WebSocket(`ws://localhost:${port}`);
+  sockets.set(port, socket);
+  const timeout = setTimeout(() => { if (!socket.authenticated) socket.close(); }, 4000);
+  socket.onopen = () => { socket.opened = true; activity.textContent = 'Connecting to an agent session…'; socket.send(JSON.stringify({ type: 'hello', token, ...identity })); };
+  socket.onmessage = event => {
+    try {
+      const message = JSON.parse(event.data);
+      if (message.type === 'authenticated') { socket.authenticated = true; authenticationFailed = false; clearTimeout(timeout); retryCounts.delete(port); activity.textContent = 'Ready. Select text or give your agent a Figma link.'; render(); return; }
+      if (socket.authenticated && message.type === 'request') {
+        activity.textContent = message.method === 'edit' ? 'Editing text…' : message.method === 'fonts' ? 'Finding fonts…' : 'Inspecting text…';
+        parent.postMessage({ pluginMessage: { ...message, route: port } }, '*');
+      }
+    } catch { socket.close(); }
+  };
+  socket.onclose = () => {
+    clearTimeout(timeout);
+    if (sockets.get(port) !== socket) return;
+    sockets.delete(port);
+    if (socket.opened && !socket.authenticated) authenticationFailed = true;
+    if (socket.authenticated) retryCounts.set(port, 0);
+    retry(port);
+    render();
+  };
+  socket.onerror = () => socket.close();
+}
+window.onmessage = event => {
+  const message = event.data?.pluginMessage;
+  if (!message || typeof message !== 'object') return;
+  if (message.type === 'identity' && typeof message.connectionId === 'string' && typeof message.fileName === 'string') {
+    identity = { connectionId: message.connectionId, fileName: message.fileName, fileKey: message.fileKey };
+    find.disabled = false;
+    activity.textContent = 'Figma connected. Searching for local agent sessions…';
+    render(); scan();
+  }
+  if (message.type === 'response') {
+    const socket = sockets.get(message.route);
+    if (socket && socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(message));
+    lastError = message.error ? String(message.error) : message.result?.success === false ? String(message.result.failed?.error ?? 'The batch stopped before every text layer was edited. Inspect the returned states before retrying.') : '';
+    activity.textContent = lastError || 'Ready. Changes can be undone in Figma.';
+    render();
+  }
+};
+function scan() {
+  for (const timer of retryTimers.values()) clearTimeout(timer);
+  retryTimers.clear(); retryCounts.clear();
+  authenticationFailed = false;
+  lastError = '';
+  for (let port = 38460; port < 38470; port++) connect(port);
+  render();
+}
+find.onclick = scan;
+parent.postMessage({ pluginMessage: { type: 'ready' } }, '*');
+</script></body></html>
