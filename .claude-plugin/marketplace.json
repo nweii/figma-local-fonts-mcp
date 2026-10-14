@@ -1,0 +1,17 @@
+{
+  "name": "agent-font-access",
+  "owner": {
+    "name": "Nathan Cheng"
+  },
+  "plugins": [
+    {
+      "name": "agent-font-access",
+      "source": "./plugins/agent-font-access-claude",
+      "version": "0.1.0",
+      "description": "Create and edit Figma text with locally installed fonts."
+    }
+  ],
+  "metadata": {
+    "description": "Local-font text tools and Figma companion setup for agents."
+  }
+}

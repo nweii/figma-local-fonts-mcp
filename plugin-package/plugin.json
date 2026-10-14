@@ -1,0 +1,24 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "agent-font-access",
+  "version": "0.1.0",
+  "description": "Create and edit Figma text with locally installed fonts, and set up its Figma Desktop companion.",
+  "author": { "name": "Nathan Cheng" },
+  "repository": "https://github.com/nweii/figma-local-fonts-mcp.git",
+  "license": "MIT",
+  "keywords": ["figma", "fonts", "design"],
+  "extensions": {
+    "com.openai": {
+      "onboardingSkill": "./skills/figma-local-fonts/SKILL.md",
+      "interface": {
+        "displayName": "Agent Font Access",
+        "shortDescription": "Figma text with your local fonts",
+        "longDescription": "Create and edit text using fonts available in Figma Desktop. Includes local text tools and a skill that prepares and connects the Figma companion.",
+        "developerName": "Nathan Cheng",
+        "category": "Productivity",
+        "capabilities": ["Read", "Write"],
+        "websiteURL": "https://github.com/nweii/figma-local-fonts-mcp"
+      }
+    }
+  }
+}

@@ -1,10 +1,21 @@
 // Gives agents concrete recovery steps without assuming an unconnected companion is uninstalled.
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { companionDirectory } from './companion.ts';
 
 type Status = { port: number; connections: Array<{ connectionId: string; fileName: string; fileKey: string | null }> };
 
 export function companionSetup(root: URL) {
+  if (existsSync(new URL('figma/ui.template.html', root))) {
+    const prepareCommand = ['node', fileURLToPath(new URL('scripts/prepare-companion.mjs', root))];
+    const manifestPath = join(companionDirectory, 'manifest.json');
+    const built = existsSync(manifestPath) && existsSync(join(companionDirectory, 'code.js')) && existsSync(join(companionDirectory, 'ui.html'));
+    return { manifestPath, built, prepareCommand, nextAction: built ? 'OPEN_COMPANION' : 'PREPARE_COMPANION',
+      instructions: built ? `Open the intended Figma Desktop file and run Agent Font Access. Import ${manifestPath} if it is not already in Plugins > Development.`
+        : 'Run prepareCommand to create the paired companion, then import the returned manifest path in Figma Desktop.',
+      agentCanPrepareFiles: true, requiresFigmaAction: true, guide: 'https://github.com/nweii/figma-local-fonts-mcp/blob/main/docs/plugin-installation.md' };
+  }
   const manifestPath = fileURLToPath(new URL('plugin/manifest.json', root));
   const available = existsSync(manifestPath);
   const built = available && existsSync(new URL('plugin/code.js', root)) && existsSync(new URL('plugin/ui.html', root));

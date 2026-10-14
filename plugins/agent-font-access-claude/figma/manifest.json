@@ -1,0 +1,13 @@
+{
+  "name": "Agent Font Access",
+  "id": "local-text-bridge-nathan",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["none"],
+    "devAllowedDomains": ["ws://localhost:38460", "ws://localhost:38461", "ws://localhost:38462", "ws://localhost:38463", "ws://localhost:38464", "ws://localhost:38465", "ws://localhost:38466", "ws://localhost:38467", "ws://localhost:38468", "ws://localhost:38469"]
+  }
+}

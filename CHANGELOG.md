@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Bundle the skill, local MCP server, and Figma companion preparation files for Claude Code and Codex.
+
 - Create text directly with an installed font, loading that font before the layer appears.
 - Connection status gives agents setup actions and the companion manifest path when available.
 

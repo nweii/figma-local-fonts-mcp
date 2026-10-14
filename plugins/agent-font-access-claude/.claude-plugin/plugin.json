@@ -1,0 +1,15 @@
+{
+  "name": "agent-font-access",
+  "version": "0.1.0",
+  "description": "Create and edit Figma text with locally installed fonts, and set up its Figma Desktop companion.",
+  "author": {
+    "name": "Nathan Cheng"
+  },
+  "repository": "https://github.com/nweii/figma-local-fonts-mcp.git",
+  "license": "MIT",
+  "keywords": [
+    "figma",
+    "fonts",
+    "design"
+  ]
+}

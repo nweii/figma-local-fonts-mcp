@@ -4,13 +4,23 @@ Agent Font Access lets agents create and edit Figma text using fonts installed o
 
 Use Figma’s official MCP for surrounding layout and screenshots. The desktop workflow has been tested on macOS.
 
-This is a development plugin that requires a source build and a manual import into Figma Desktop.
+The Figma companion is installed through a development import. The agent plugin can prepare its files for you.
 
 ## When to use it
 
 Use Agent Font Access when Figma Desktop can use a font that your agent’s remote Figma tools cannot load. As of October 2026, Figma’s remote MCP can access fonts uploaded to a Figma account, but cannot access fonts installed only on your computer. Account uploads are another option if your account supports them. See [Figma’s MCP server FAQ](https://help.figma.com/hc/en-us/articles/39252411778583-Figma-MCP-server-FAQs).
 
 ## Installation
+
+Install the [agent plugin for Claude Code or Codex](docs/plugin-installation.md) to get the skill and local server together. It can also prepare the Figma companion for import. The standalone setup below remains available.
+
+For Claude Code, install from the repository marketplace.
+
+```sh
+claude plugin install agent-font-access --marketplace nweii/figma-local-fonts-mcp --scope user
+```
+
+For Codex, follow the [marketplace and desktop installation steps](docs/plugin-installation.md#codex).
 
 You need Node.js 24 or later, Figma Desktop with edit access to a file, the required fonts installed locally, and an MCP client that can launch a local process.
 
@@ -60,7 +70,7 @@ Select text in Figma, or give the agent a node link, then ask for a change such 
 
 Edits preserve formatting that the request does not change. The plugin checks every target and loads all required fonts before writing. A failed font load creates no layer. For edits, a preflight failure leaves the batch unapplied; a runtime failure can leave a partial batch. Check every returned state before continuing. Figma Undo can reverse the batch.
 
-See [text operations and limits](docs/text-tools.md) for copy replacement, mixed styles, batch limits, and wrapping dimensions. The optional [agent skill](skills/figma-local-fonts/SKILL.md) provides routing and recovery guidance; registration does not install it automatically.
+See [text operations and limits](docs/text-tools.md) for copy replacement, mixed styles, batch limits, and wrapping dimensions. The [agent skill](skills/figma-local-fonts/SKILL.md) provides setup, routing, and recovery guidance. It is included in the agent plugin; standalone MCP registration does not install it.
 
 ## Troubleshooting
 
@@ -92,7 +102,7 @@ Close the companion and remove its development entry in Figma. Close agent sessi
 
 ## Development
 
-Run the checks from the repository directory.
+Run the checks from the source repository directory.
 
 ```sh
 npm run check

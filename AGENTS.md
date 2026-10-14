@@ -15,3 +15,7 @@ The installation credential belongs in per-user application support, outside the
 Use `package.json` for the check, build, and test commands. For changed non-trivial behavior, run the relevant regression checks and build before a live test. Report automated coverage separately from a Figma Desktop result. A live write test uses a disposable layer and ends only after inspection confirms the original content and formatting have been restored.
 
 When connection states or actions change, update the UI, MCP guidance, agent skill, and troubleshooting references together. Keep setup in the README and link to it from agent instructions.
+
+## Agent plugin package
+
+`plugin-package/plugin.json`, `skills/`, and `src/` are canonical. Regenerate the portable Codex and native Claude packages under `plugins/` with `npm run build:plugin` after changes. Package only the Figma UI template; the paired UI is generated in private user storage. Validate both client manifests and test the bundled server without repository dependencies.

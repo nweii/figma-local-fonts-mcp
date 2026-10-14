@@ -1,24 +1,31 @@
 ---
 name: figma-local-fonts
-description: Use when editing Figma text with locally installed fonts, when the remote MCP cannot load a requested font, or when setting up or recovering Agent Font Access.
+description: Use when setting up Agent Font Access, creating or editing Figma text with fonts installed on the computer, or recovering its local font connection.
 ---
 
 # Agent Font Access
 
-Use the local tools for text creation, copy, font selection, typography, and text-box reflow that need fonts installed on the user's Mac. Use the official Figma MCP for design context, creation, frame layout, and screenshots. Route these operations without asking the user to choose a tool.
+Use the bundled local tools for text creation, copy, typography, font selection, and wrapping. Use the official Figma tools for surrounding layout, non-text layers, and screenshots.
 
-Inspect the relevant text together, discover exact font names when choosing a typeface, then batch related changes. The MCP instructions and schemas define the fields, limits, and preflight checks. Reuse the returned revisions and states for follow-up edits; inspect again after an external change, timeout, or uncertain result.
+## Connect the intended file
 
-Frame and instance inspection skips hidden text. Direct text targets include visibility flags; check `effectiveVisible` before treating a returned layer as visible on the canvas. Edit hidden text only when the user’s request includes it.
+1. Find the `figma_local_fonts_` tools (status, inspect, search, create, edit); client prefixes vary. If they are missing, check that the Agent Font Access agent plugin is installed and enabled, inspect its MCP launch error, and start a fresh session if needed. Follow [plugin installation](../../docs/plugin-installation.md) for registration. If only some tools are available, check the installed version against the release notes and upgrade that installation. Preserve an existing working installation rather than adding a duplicate standalone server.
+2. Call status. When no companion is connected, follow its `companion.nextAction` and `prepareCommand`. The bundled preparation script creates paired Figma files in private user storage and returns the full manifest path. It does not print the credential. For a standalone server without these resources, follow [source setup](../../docs/source-setup.md).
+3. Open the intended file in Figma Desktop. Check **Plugins → Development** for Agent Font Access; a disconnected companion may be installed but closed. Import the returned manifest if needed, run the companion, and click **Find agent sessions** if the server started later. Use native app tools when available. Otherwise give the user the full manifest path and this exact action; complete file preparation first.
+4. Confirm status lists the intended file and inspect the user's selected text or exact node IDs. Match its page, text, and font before writing. Keep the companion window open; collapsing its details preserves the connection.
 
-For new text, inspect neighboring text or search local fonts for the exact family and style, identify the intended parent, then call `figma_local_fonts_create`. It loads the font before any layer appears and returns a revision for subsequent edits. After a timeout, inspect the parent before retrying to avoid a duplicate. See [creation fields and limits](../../docs/text-tools.md#create-text).
+Setup is complete when the intended file is connected and local inspection returns the intended text and font. Installing the agent plugin or starting the server alone does not establish a Figma connection. Keep credential-bearing files out of output, commits, archives, and support messages.
 
-An edit is complete when every target reports success and its returned state matches the requested copy, fonts, sizing, and unaffected styles. After a composition or wrapping change, check a screenshot for clipping and alignment. A remote resize alone does not establish that missing-font text has reflowed correctly.
+## Create or edit text
 
-## Set up Agent Font Access
+Inspect relevant text together. Search installed fonts when choosing a typeface or when an exact family/style is unknown.
 
-When the local tools are unavailable, follow [source setup](../../docs/source-setup.md), including registration and the Figma development import. For published-package testing, follow the [package guide](../../docs/package-testing.md). Agent clients share one desktop broker; use the incompatible-server recovery in troubleshooting if an older build occupies its port. Status distinguishes a running server from an unconnected companion and returns concrete setup actions. An unconnected companion may be installed but closed; check before claiming it is missing. Build or register what the environment needs, and provide a full manifest path for any Figma import. Setup is complete when local status lists the intended file and inspection returns the intended text.
+For new text, identify its parent and use `figma_local_fonts_create` with the exact local font and intended formatting. It loads the font before adding the layer. Copy neighboring typography from inspected values instead of introducing a placeholder font. See [creation fields and limits](../../docs/text-tools.md#create-text) for supported parents, auto layout, colors, and wrapping.
 
-## Recover a connection or edit
+For existing text, batch related changes using inspected revisions. A font change intentionally applies across the whole layer; copy replacements stay within one style run. Container inspection skips hidden descendants; explicit text targets return visibility flags. Treat `effectiveVisible` as the rendered visibility and edit hidden text only when requested.
 
-For a missing connection, failed font load, stale revision, mixed-style replacement, partial batch, or timeout, follow the matching state in [troubleshooting](../../docs/troubleshooting.md). Use the batch's applied, failed, and unattempted targets to identify remaining work. Complete returned states and revisions can support the next edit directly; re-inspect when a state is missing, uncertain, or changed externally. Connection recovery ends when status lists the intended file; edit recovery ends when returned states or fresh inspection confirm the requested text and formatting.
+## Verify and recover
+
+Check every returned state against the requested text, fonts, sizing, and preserved formatting. After wrapping or composition changes, inspect a screenshot for clipping and alignment. Completion requires matching states and a passing visual check where layout changed.
+
+For a missing connection, font failure, stale revision, mixed-style replacement, partial batch, or timeout, follow the matching [troubleshooting entry](../../docs/troubleshooting.md). Reuse complete returned states and revisions for follow-up edits; inspect again after an external change or uncertain result. For partial batches, retry only remaining work. For a timed-out creation, inspect the parent before retrying to avoid a duplicate.

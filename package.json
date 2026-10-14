@@ -27,7 +27,8 @@
     "build": "node scripts/build.mjs",
     "check": "tsc --noEmit",
     "test": "node --test tests/*.test.ts tests/*.test.mjs",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "build:plugin": "node scripts/build-plugin.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.1",

@@ -1,0 +1,5 @@
+{
+  "name": "agent-font-access",
+  "interface": { "displayName": "Agent Font Access" },
+  "plugins": [{ "name": "agent-font-access", "version": "0.1.0", "source": { "source": "git-subdir", "url": "https://github.com/nweii/figma-local-fonts-mcp.git", "path": "plugins/agent-font-access", "ref": "main" }, "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" }, "category": "Productivity" }]
+}
